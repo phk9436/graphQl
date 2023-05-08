@@ -4,17 +4,34 @@ let tweets = [
   {
     id: "1",
     text: "text",
+    userId: "user1"
   },
   {
     id: "2",
     text: "text2",
+    userId: "user2"
+  },
+];
+
+let users = [
+  {
+    id: "user1",
+    firstName: "nico",
+    lastName: "las",
+  },
+  {
+    id: "user2",
+    firstName: "Elon",
+    lastName: "Mask",
   },
 ];
 
 const typeDefs = gql`
   type User {
     id: ID!
-    username: String!
+    firstName: String!
+    lastName: String!
+    fullName: String!
   }
   type Tweet {
     id: ID!
@@ -22,6 +39,7 @@ const typeDefs = gql`
     author: User!
   }
   type Query {
+    allUsers: [User!]!
     allTweets: [Tweet!]!
     tweet(id: ID!): Tweet
   }
@@ -36,26 +54,40 @@ const resolvers = {
     allTweets() {
       return tweets;
     },
-    tweet(root, { id }) {
-      return tweets.find((e) => e.id === id);
+    allUsers() {
+      return users;
+    },
+    tweet(root, props) {
+      return tweets.find((e) => e.id === props.id);
     },
   },
   Mutation: {
-    postTweet(root, { text, userId }) {
+    postTweet(root, props) {
       const newTweet = {
         id: tweets.length + 1,
-        text,
+        text: props.text,
       };
       tweets.push(newTweet);
       return newTweet;
     },
-    deleteTweet(root, { id }) {
-      const tweet = tweets.find((e) => e.id === id);
+    deleteTweet(root, props) {
+      const tweet = tweets.find((e) => e.id === props.id);
       if (!tweet) return false;
-      tweets = tweets.filter((e) => e.id !== id);
+      tweets = tweets.filter((e) => e.id !== props.id);
       return true;
     },
   },
+  User: {
+    fullName(root) {
+      return `${root.firstName} ${root.lastName}`;
+    },
+  },
+  Tweet: {
+    author(root) {
+      console.log(root)
+      return users.find(e => e.id === root.userId);
+    }
+  }
 };
 
 const server = new ApolloServer({ typeDefs, resolvers });
