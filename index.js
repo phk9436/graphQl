@@ -39,12 +39,17 @@ const typeDefs = gql`
     author: User!
   }
   type Query {
+    """show all users"""
     allUsers: [User!]!
+    """show all tweets"""
     allTweets: [Tweet!]!
+    """show one tweet matched id"""
     tweet(id: ID!): Tweet
   }
   type Mutation {
+    """post tweet with text and userid"""
     postTweet(text: String!, userId: ID!): Tweet!
+    """delete tweet matched id"""
     deleteTweet(id: ID!): Boolean!
   }
 `;
