@@ -1,15 +1,17 @@
 import { ApolloServer, gql } from "apollo-server";
+import fetch from "node-fetch";
+import axios from "axios";
 
 let tweets = [
   {
     id: "1",
     text: "text",
-    userId: "user1"
+    userId: "user1",
   },
   {
     id: "2",
     text: "text2",
-    userId: "user2"
+    userId: "user2",
   },
 ];
 
@@ -39,18 +41,52 @@ const typeDefs = gql`
     author: User!
   }
   type Query {
-    """show all users"""
+    """
+    show all users
+    """
     allUsers: [User!]!
-    """show all tweets"""
+    """
+    show all tweets
+    """
     allTweets: [Tweet!]!
-    """show one tweet matched id"""
+    """
+    show one tweet matched id
+    """
     tweet(id: ID!): Tweet
+    movie(id: String!): Movie
   }
   type Mutation {
-    """post tweet with text and userid"""
+    """
+    post tweet with text and userid
+    """
     postTweet(text: String!, userId: ID!): Tweet!
-    """delete tweet matched id"""
+    """
+    delete tweet matched id
+    """
     deleteTweet(id: ID!): Boolean!
+  }
+  type Movie {
+    id: Int!
+    url: String!
+    imdb_code: String!
+    title: String!
+    title_english: String!
+    title_long: String!
+    slug: String!
+    year: Int!
+    rating: Float!
+    runtime: Float!
+    genres: [String]!
+    summary: String
+    description_full: String!
+    synopsis: String
+    yt_trailer_code: String!
+    language: String!
+    background_image: String!
+    background_image_original: String!
+    small_cover_image: String!
+    medium_cover_image: String!
+    large_cover_image: String!
   }
 `;
 
@@ -64,6 +100,13 @@ const resolvers = {
     },
     tweet(root, props) {
       return tweets.find((e) => e.id === props.id);
+    },
+    async movie(root, props) {
+      const { data } = await axios.get(
+        `https://yts.mx/api/v2/movie_details.json?movie_id=${props.id}`
+      );
+      const { movie } = data.data;
+      return movie;
     },
   },
   Mutation: {
@@ -89,10 +132,9 @@ const resolvers = {
   },
   Tweet: {
     author(root) {
-      console.log(root)
-      return users.find(e => e.id === root.userId);
-    }
-  }
+      return users.find((e) => e.id === root.userId);
+    },
+  },
 };
 
 const server = new ApolloServer({ typeDefs, resolvers });
