@@ -54,6 +54,7 @@ const typeDefs = gql`
     """
     tweet(id: ID!): Tweet
     movie(id: String!): Movie
+    movies: [Movie!]!
   }
   type Mutation {
     """
@@ -108,6 +109,13 @@ const resolvers = {
       const { movie } = data.data;
       return movie;
     },
+    async movies() {
+      const {data} = await axios.get(
+        "https://yts.mx/api/v2/list_movies.json"
+      );
+      const { movies } = data.data;
+      return movies;
+    }
   },
   Mutation: {
     postTweet(root, props) {
