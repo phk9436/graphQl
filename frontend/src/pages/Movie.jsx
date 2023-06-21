@@ -7,6 +7,8 @@ const getMovie = gql`
     movie(id: $movieId) {
       id
       title
+      rating
+      isLiked @client
     }
   }
 `;
@@ -21,6 +23,8 @@ function Movie() {
   return (
     <div>
       <h2>{loading ? "Loading..." : data.movie.title}</h2>
+      <p>{data?.movie.rating}</p>
+      <button type="button">{data?.movie.isLiked ? "unlike" : "like"}</button>
     </div>
   );
 }
